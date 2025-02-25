@@ -1,15 +1,12 @@
-// Global dimensions
-const width = document.documentElement.clientWidth;
-const height = window.innerHeight;
-
-// Media queries (kept as in your original code)
+// Global device width for media queries (canvas sizing now comes from the parent element)
+const viewportWidth = document.documentElement.clientWidth;
 const mm = gsap.matchMedia();
 
-// Global counters (if you want to track overall loading progress)
+// Global counters for overall image loading progress (if needed for a loading indicator)
 let globalImagesRemaining = 0;
 let totalImagesCount = 0;
 
-// Initialize sections – now each section will update global counts
+// Initialize sections by finding all elements with [scrub-wrapper]
 function initSections() {
   const sections = gsap.utils.toArray("[scrub-wrapper]");
   sections.forEach((section) => {
@@ -19,8 +16,7 @@ function initSections() {
     const canvas = section.querySelector("canvas");
     if (!canvas || !prefix || !suffix || !frames) return;
 
-    // Device check remains the same
-    const device = width >= 768 ? "desktop" : "mobile";
+    const device = viewportWidth >= 768 ? "desktop" : "mobile";
 
     totalImagesCount += frames;
     globalImagesRemaining += frames;
@@ -28,12 +24,12 @@ function initSections() {
   });
 }
 
-// Update global counter and call lenis.resize when all images are loaded
+// Update the global loading counter and call lenis.resize when all images have loaded.
 function updateGlobalImageCount() {
   globalImagesRemaining--;
   const updatedPercent =
     100 - Math.round((globalImagesRemaining * 100) / totalImagesCount);
-  // You can use updatedPercent for a loading bar if needed
+  // Optionally, use updatedPercent to update a loading bar.
   if (globalImagesRemaining === 0) {
     setTimeout(() => {
       lenis.resize();
@@ -42,11 +38,12 @@ function updateGlobalImageCount() {
 }
 
 // Initialize the canvas for a given section.
-// Refactored to use a local "imagesLoaded" counter so that each section handles its own images.
+// Canvas dimensions are now derived from its parent element.
 function initCanvas(section, canvas, prefix, suffix, frames, device) {
   const context = canvas.getContext("2d");
-  canvas.width = document.documentElement.clientWidth;
-  canvas.height = window.innerHeight;
+  const parent = canvas.parentElement;
+  canvas.width = parent.clientWidth;
+  canvas.height = parent.clientHeight;
 
   const frameCount = frames;
   const currentFrame = (index) =>
@@ -61,7 +58,6 @@ function initCanvas(section, canvas, prefix, suffix, frames, device) {
       imagesLoaded++;
       updateGlobalImageCount();
       if (imagesLoaded === frameCount) {
-        // When all images for this section are loaded, initialize animations.
         initCanvasAnimations(section, images, context, canvas);
       }
     };
@@ -77,40 +73,39 @@ function initCanvas(section, canvas, prefix, suffix, frames, device) {
   }
 }
 
-// Sets up the animation for the canvas.
-// For each block (with [frames-play]), we check for a data-autoplay-sequence attribute.
-// • If present and if the page scroll is at the top (<=1px), we auto-animate the image sequence.
-// • Otherwise, we immediately render the final frame of that block.
-// Blocks without the attribute use the standard ScrollTrigger timeline.
+// Initialize animations for each [frames-play] block in the section.
 function initCanvasAnimations(section, images, context, canvas) {
-  // This default sequence is used for an initial render (it’s independent of any block)
+  // A default sequence used for an initial render.
   const defaultSequence = { frame: 0 };
 
   const blocks = section.querySelectorAll("[frames-play]");
   blocks.forEach((block) => {
     const start = Number(block.dataset.start);
     const end = Number(block.dataset.end);
-    const posStart = block.dataset.startPos || "top top";
-    const posEnd = block.dataset.endPos || "bottom bottom";
+    // Total frames to animate in this block:
+    const blockFrameCount = end - start;
+    // Compute duration for 30fps playback (duration in seconds)
+    const duration = blockFrameCount / 30;
     const blockSequence = { frame: 0 };
 
-    // Check if we want to auto-play this block’s sequence:
+    // If the data-autoplay-sequence attribute is present…
     if ("autoplaySequence" in block.dataset) {
       if (window.scrollY <= 1) {
-        // Animate automatically from start to end
+        // Autoplay at 30fps with snapping to an integer frame
         gsap.to(blockSequence, {
           frame: end - 1,
-          duration: 1,
+          duration: duration,
           ease: "none",
-          onUpdate: () => render(images, blockSequence, context, canvas),
+          snap: "frame",
+          onUpdate: () => render(images, blockSequence, context, canvas)
         });
       } else {
-        // If the scroll is already past the top, set it to the final frame
+        // If not at the top, immediately show the final frame.
         blockSequence.frame = end - 1;
         render(images, blockSequence, context, canvas);
       }
     } else {
-      // Standard scroll-triggered timeline for this block
+      // For blocks without autoplay, use the standard scroll-triggered timeline.
       gsap
         .timeline({
           onUpdate: () => render(images, blockSequence, context, canvas),
@@ -118,8 +113,8 @@ function initCanvasAnimations(section, images, context, canvas) {
             trigger: block,
             pin: false,
             scrub: 1,
-            start: posStart,
-            end: posEnd,
+            start: block.dataset.startPos || "top top",
+            end: block.dataset.endPos || "bottom bottom",
             markers: false,
           },
         })
@@ -132,23 +127,25 @@ function initCanvasAnimations(section, images, context, canvas) {
     }
   });
 
-  // Render the default sequence initially
+  // Render the default sequence initially.
   render(images, defaultSequence, context, canvas);
 
-  // Update canvas dimensions and re-render on window resize
+  // On window resize, update canvas dimensions using the parent's size.
   window.addEventListener("resize", () => {
-    canvas.width = document.documentElement.clientWidth;
-    canvas.height = window.innerHeight;
+    const parent = canvas.parentElement;
+    canvas.width = parent.clientWidth;
+    canvas.height = parent.clientHeight;
     render(images, defaultSequence, context, canvas);
   });
 }
 
-// Renders the current image on the canvas based on the sequence's frame value.
+// Render the current frame to the canvas.
 function render(images, sequence, context, canvas) {
   const img = images[sequence.frame];
+  console.log(sequence.frame, img.src);
   context.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Calculate scale factor so the image covers the canvas
+  // Compute scale factor so the image covers the canvas while preserving aspect ratio.
   const scaleFactor = Math.max(
     canvas.width / img.width,
     canvas.height / img.height
@@ -161,7 +158,7 @@ function render(images, sequence, context, canvas) {
   context.drawImage(img, x, y, newWidth, newHeight);
 }
 
-// Initialize sections based on media queries
+// Initialize sections based on media queries.
 mm.add("(min-width: 768px)", () => {
   initSections();
 });

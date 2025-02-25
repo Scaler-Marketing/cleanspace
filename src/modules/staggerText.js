@@ -45,8 +45,6 @@ export function setStaggerText() {
     const type = el.getAttribute("stagger-text");
     let staggerTextEls;
 
-    console.log(type);
-
     if (el.classList.contains('w-richtext')) {
       staggerTextEls = new SplitType(el.querySelectorAll('p, li, h2, h3'), {
         types: "words, lines",
