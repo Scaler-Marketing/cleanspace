@@ -7,8 +7,6 @@ export function setLoadingStates() {
   const logo = loading.querySelector(".loading_logo");
   const logoPath = loading.querySelector(".loading_bg-svg path");
 
-  console.log(loading, logo, logoPath);
-
   gsap.set(logoPath, { drawSVG: "100% live" });
   gsap.set(logo, { opacity: 1, y: "0%" });
   gsap.set(loading, { clipPath: "inset(0% 0% 0% 0%)" });
