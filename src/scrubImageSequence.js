@@ -38,7 +38,7 @@ function updateGlobalImageCount() {
 }
 
 // Initialize the canvas for a given section.
-// Canvas dimensions are now derived from its parent element.
+// Canvas dimensions are derived from its parent element.
 function initCanvas(section, canvas, prefix, suffix, frames, device) {
   const context = canvas.getContext("2d");
   const parent = canvas.parentElement;
@@ -57,6 +57,10 @@ function initCanvas(section, canvas, prefix, suffix, frames, device) {
     img.onload = () => {
       imagesLoaded++;
       updateGlobalImageCount();
+      // Immediately render the first frame as soon as it loads.
+      if (i === 0) {
+        render(images, { frame: 0 }, context, canvas);
+      }
       if (imagesLoaded === frameCount) {
         initCanvasAnimations(section, images, context, canvas);
       }
@@ -88,16 +92,24 @@ function initCanvasAnimations(section, images, context, canvas) {
     const duration = blockFrameCount / 30;
     const blockSequence = { frame: 0 };
 
+    console.log(block.dataset);
+
     // If the data-autoplay-sequence attribute is present…
     if ("autoplaySequence" in block.dataset) {
+      const delay = block.dataset.autoplayDelay
+        ? Number(block.dataset.autoplayDelay)
+        : 0;
+      
+      console.log("autoplaySequence", block.dataset.autoplaySequence, start, end, duration, delay);
       if (window.scrollY <= 1) {
-        // Autoplay at 30fps with snapping to an integer frame
+        // If a delay is specified, wait before starting the autoplay tween.
         gsap.to(blockSequence, {
           frame: end - 1,
           duration: duration,
           ease: "none",
           snap: "frame",
-          onUpdate: () => render(images, blockSequence, context, canvas)
+          delay,
+          onUpdate: () => render(images, blockSequence, context, canvas),
         });
       } else {
         // If not at the top, immediately show the final frame.
@@ -142,7 +154,6 @@ function initCanvasAnimations(section, images, context, canvas) {
 // Render the current frame to the canvas.
 function render(images, sequence, context, canvas) {
   const img = images[sequence.frame];
-  console.log(sequence.frame, img.src);
   context.clearRect(0, 0, canvas.width, canvas.height);
 
   // Compute scale factor so the image covers the canvas while preserving aspect ratio.
