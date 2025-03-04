@@ -5,6 +5,8 @@ import { setStaggerText } from "./modules/staggerText";
 import { setStaggerElements } from "./modules/staggerElements";
 import { setPathAnimations } from "./modules/SVGPathAnimation";
 import { initCheckSectionThemeScroll } from "./modules/checkNavTheme";
+import { initFormSubmit } from "./modules/formSubmit";
+import { initContactForm } from "./modules/contactForm";
 
 document.addEventListener("DOMContentLoaded", () => {
   setLoadingStates();
@@ -14,4 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
   setStaggerText();
   setStaggerElements();
   setPathAnimations();
+  initFormSubmit();
+  initContactForm();
 });
