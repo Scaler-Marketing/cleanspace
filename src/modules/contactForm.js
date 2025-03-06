@@ -27,12 +27,56 @@ export function initContactForm() {
   openButton.forEach((button) => {
     button.addEventListener("click", () => {
       wrapper.classList.add("is-active");
+      document.body.classList.add("no-scrollbar");
+      lenis.stop();
       tl.play();
     });
   });
 
   closeButton.addEventListener("click", () => {
     wrapper.classList.remove("is-active");
+    document.body.classList.remove("no-scrollbar");
+    lenis.start();
     tl.reverse();
+  });
+
+  setCheckBoxes();
+}
+
+function setCheckBoxes() {
+  // get list of custom checkboxes groups on the page
+  const groups = document.querySelectorAll(".input_checkbox-group");
+
+  // loop through each group
+  groups.forEach((group) => {
+    // get all checkboxes in the group
+    const checkboxes = group.querySelectorAll("input[type='checkbox']");
+    // identify the hidden text field inside each group
+    const hiddenInput = group.querySelector(".input_checkbox-hidden");
+
+    if (!checkboxes.length) {
+      return;
+    }
+
+    //when any checkbox on this group change, grab the values, transform the array into a string, and update the hidden field
+    function updateHiddenInput() {
+      const values = Array.from(checkboxes)
+        .filter((checkbox) => checkbox.checked)
+        .map((checkbox) => checkbox.value);
+
+      hiddenInput.value = values.join(", ");
+    }
+
+    // loop through each checkbox
+    checkboxes.forEach((checkbox) => {
+      // get checkbox label
+      const label = checkbox.nextElementSibling;
+
+      // set checkbox value to label text
+      checkbox.value = label.textContent;
+
+      // when checkbox change, update the hidden input
+      checkbox.addEventListener("change", updateHiddenInput);
+    });
   });
 }
