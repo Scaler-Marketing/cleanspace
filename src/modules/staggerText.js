@@ -1,3 +1,5 @@
+import { setLinesWrapper } from "./setLinesWrapper";
+
 // Link timelines to scroll position
 function createScrollTrigger(triggerElement, elements, start, end, stagger, delay, withScroll) {
   const trigger = {
@@ -56,6 +58,10 @@ export function setStaggerText() {
         types: type === "words" ? "words" : "lines",
         tagName: "span",
       });
+    }
+
+    if (type !== "words") {
+      setLinesWrapper(staggerTextEls.lines);
     }
 
     gsap.set(type === "words" ? staggerTextEls.words : staggerTextEls.lines,  { yPercent: 100, opacity: 0 });

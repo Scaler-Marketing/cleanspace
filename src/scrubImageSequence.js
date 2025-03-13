@@ -92,15 +92,12 @@ function initCanvasAnimations(section, images, context, canvas) {
     const duration = blockFrameCount / 30;
     const blockSequence = { frame: 0 };
 
-    console.log(block.dataset);
-
     // If the data-autoplay-sequence attribute is present…
     if ("autoplaySequence" in block.dataset) {
       const delay = block.dataset.autoplayDelay
         ? Number(block.dataset.autoplayDelay)
         : 0;
       
-      console.log("autoplaySequence", block.dataset.autoplaySequence, start, end, duration, delay);
       if (window.scrollY <= 1) {
         // If a delay is specified, wait before starting the autoplay tween.
         gsap.to(blockSequence, {

@@ -5,20 +5,71 @@ export function initMenu() {
     console.error("No menu found.");
     return;
   }
+  // use gsap.matchMedia to check if the screen is table or mobile.
+  // If it is, add extra logic to open the mobile menu on click and also the dropdowns on click.
+  // If it is not, use the mouseenter and mouseleave events to show and hide the dropdowns.
+  const mm = gsap.matchMedia();
+  mm.add({
+    isMobile: "(max-width: 991px)",
+    isDesktop: "(min-width: 992px)",
+  },
+    (context) => { 
+      const menuItems = menu.querySelectorAll(".navbar_link");
+      menuItems.forEach((item) => setMenuItem(item, context.conditions.isMobile));
+    
+      const dropdowns = menu.querySelectorAll(".navbar_dropdown-trigger");
+    
+      if (!dropdowns) {
+        console.error("No dropdowns found.");
+        return;
+      }
 
-  const menuItems = menu.querySelectorAll(".navbar_link");
-  menuItems.forEach((item) => setMenuItem(item));
+      if (context.conditions.isMobile) {
+        const menuTrigger = menu.querySelector(".navbar_link.is-mobile-trigger");
+        const menuDropdown = menu.querySelector(".navbar_menu");
 
-  const dropdowns = menu.querySelectorAll(".navbar_dropdown-trigger");
+        gsap.set(menuDropdown, { height: 0 });
 
-  if (!dropdowns) {
-    console.error("No dropdowns found.");
-    return;
-  }
+        menuTrigger.addEventListener("click", () => {
+          menuDropdown.classList.toggle("is-active");
 
-  dropdowns.forEach((dropdown) => {
-    setDropdown(dropdown);
-  });
+          if (menuDropdown.classList.contains("is-active")) {
+            gsap.to(menuDropdown, {
+              height: "auto",
+              duration: 0.5,
+              ease: "expo.out",
+            });
+            gsap.to(
+              menuTrigger.querySelectorAll(".navbar_link-icon-svg"),
+              {
+                rotate: 180,
+                duration: 0.5,
+                ease: "expo.out",
+              });
+          }
+          else {
+            gsap.to(menuDropdown, {
+              height: 0,
+              duration: 0.5,
+              ease: "expo.out",
+            });
+            gsap.to(
+              menuTrigger.querySelectorAll(".navbar_link-icon-svg"),
+              {
+                rotate: 0,
+                duration: 0.5,
+                ease: "expo.out",
+              });
+          }
+        });
+      }
+    
+      dropdowns.forEach((dropdown) => {
+        setDropdown(dropdown, context.conditions.isMobile);
+      });
+    });
+  
+
 }
 
 function setMenuItem(item) {
@@ -46,7 +97,7 @@ function setMenuItem(item) {
   });
 }
 
-function setDropdown(dropdown) {
+function setDropdown(dropdown, isMobile) {
   // add mouse hover logic to show / hide dropdown based on .navbar_dropdown height
   const dropdownMenu = dropdown.querySelector(".navbar_dropdown");
   const dropdownLinks = dropdownMenu.querySelectorAll(".dropdown_item");
@@ -64,6 +115,15 @@ function setDropdown(dropdown) {
       duration: 0.5,
       ease: "expo.out",
     });
+    tl.to(
+      dropdown.querySelectorAll(".navbar_link-icon-svg"),
+      {
+        rotate: 180,
+        duration: 0.5,
+        ease: "expo.out",
+      },
+      0
+    );
 
     tl.to(dropdownLinks, {
       yPercent: 0,
@@ -88,13 +148,37 @@ function setDropdown(dropdown) {
       duration: 0.3,
       ease: "expo.out",
     }, 0);
+
+    tl.to(
+      dropdown.querySelectorAll(".navbar_link-icon-svg"),
+      {
+        rotate: 0,
+        duration: 0.5,
+        ease: "expo.out",
+      },
+      0
+    );
   }
+  
+  if (isMobile) {
+    dropdown.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (dropdown.classList.contains("active")) {
+        closeDropdown();
+        dropdown.classList.remove("active");
+      }
+      else {
+        openDropdown();
+        dropdown.classList.add("active");
+      }
+    });
+  } else {
+    dropdown.addEventListener("mouseenter", () => {
+      openDropdown();
+    });
 
-  dropdown.addEventListener("mouseenter", () => {
-    openDropdown();
-  });
-
-  dropdown.addEventListener("mouseleave", () => {
-    closeDropdown();
-  });
+    dropdown.addEventListener("mouseleave", () => {
+      closeDropdown();
+    });
+  }
 }
