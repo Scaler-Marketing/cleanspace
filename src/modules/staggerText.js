@@ -13,7 +13,7 @@ function createScrollTrigger(triggerElement, elements, start, end, stagger, dela
   if (!withScroll) {
     trigger.onEnter = () => {
       gsap.to(elements, {
-        yPercent: 0,
+        y: 0,
         opacity: 1,
         stagger: stagger,
         duration: 1.5,
@@ -30,7 +30,7 @@ function createScrollTrigger(triggerElement, elements, start, end, stagger, dela
         scrollTrigger: trigger,
       })
       .to(words, {
-        yPercent: 0,
+        y: 0,
         opacity: 1.5,
         stagger: stagger,
         duration: 1,
@@ -48,8 +48,8 @@ export function setStaggerText() {
     let staggerTextEls;
 
     if (el.classList.contains('w-richtext')) {
-      staggerTextEls = new SplitType(el.querySelectorAll('p, li, h2, h3'), {
-        types: "words, lines",
+      staggerTextEls = new SplitType(el.querySelectorAll("p, li, h2, h3"), {
+        types: type === "words" ? "words" : "lines",
         tagName: "span",
       });
 
@@ -64,7 +64,7 @@ export function setStaggerText() {
       setLinesWrapper(staggerTextEls.lines);
     }
 
-    gsap.set(type === "words" ? staggerTextEls.words : staggerTextEls.lines,  { yPercent: 100, opacity: 0 });
+    gsap.set(type === "words" ? staggerTextEls.words : staggerTextEls.lines,  { y: "1em", opacity: 0 });
 
     el.classList.add("init");
 
