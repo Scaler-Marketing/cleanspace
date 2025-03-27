@@ -27,7 +27,7 @@ export function initContactForm() {
   openButton.forEach((button) => {
     button.addEventListener("click", () => {
       wrapper.classList.add("is-active");
-      document.body.classList.add("no-scrollbar");
+      // document.body.classList.add("no-scrollbar");
       lenis.stop();
       tl.play();
     });
@@ -35,7 +35,7 @@ export function initContactForm() {
 
   closeButton.addEventListener("click", () => {
     wrapper.classList.remove("is-active");
-    document.body.classList.remove("no-scrollbar");
+    // document.body.classList.remove("no-scrollbar");
     lenis.start();
     tl.reverse();
   });
