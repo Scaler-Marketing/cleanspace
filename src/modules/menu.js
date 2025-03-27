@@ -27,6 +27,7 @@ export function initMenu() {
       if (context.conditions.isMobile) {
         const menuTrigger = menu.querySelector(".navbar_link.is-mobile-trigger");
         const menuDropdown = menu.querySelector(".navbar_menu");
+        const contentWrapper = document.querySelector(".main-wrapper");
 
         gsap.set(menuDropdown, { height: 0 });
 
@@ -46,6 +47,11 @@ export function initMenu() {
                 duration: 0.5,
                 ease: "expo.out",
               });
+            gsap.to(contentWrapper, {
+              filter: "blur(15px)",
+              duration: 0.5,
+              ease: "expo.out",
+            });
           }
           else {
             gsap.to(menuDropdown, {
@@ -60,6 +66,11 @@ export function initMenu() {
                 duration: 0.5,
                 ease: "expo.out",
               });
+            gsap.to(contentWrapper, {
+              filter: "blur(0px)",
+              duration: 0.5,
+              ease: "expo.out",
+            });
           }
         });
       }
