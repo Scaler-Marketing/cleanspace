@@ -1,8 +1,8 @@
 export function initContactForm() {
   const wrapper = document.querySelector(".contact-modal");
-  const form = wrapper.querySelector("form");
+  // const form = wrapper.querySelector("form");
 
-  if (!wrapper || !form) {
+  if (!wrapper) {
     return;
   }
 
