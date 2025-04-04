@@ -28,7 +28,7 @@ export function initMenu() {
         const menuTrigger = menu.querySelector(".navbar_link.is-mobile-trigger");
         const menuDropdown = menu.querySelector(".navbar_menu");
         const contentWrapper = document.querySelector(".main-wrapper");
-        const footer = document.querySelector(".footer");
+        const footer = document.querySelector(".footer_component");
 
         gsap.set(menuDropdown, { height: 0 });
 
