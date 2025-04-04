@@ -28,6 +28,7 @@ export function initMenu() {
         const menuTrigger = menu.querySelector(".navbar_link.is-mobile-trigger");
         const menuDropdown = menu.querySelector(".navbar_menu");
         const contentWrapper = document.querySelector(".main-wrapper");
+        const footer = document.querySelector(".footer");
 
         gsap.set(menuDropdown, { height: 0 });
 
@@ -52,6 +53,11 @@ export function initMenu() {
               duration: 0.5,
               ease: "expo.out",
             });
+            gsap.to(footer, {
+              filter: "blur(15px)",
+              duration: 0.5,
+              ease: "expo.out",
+            });
           }
           else {
             gsap.to(menuDropdown, {
@@ -67,6 +73,11 @@ export function initMenu() {
                 ease: "expo.out",
               });
             gsap.to(contentWrapper, {
+              filter: "blur(0px)",
+              duration: 0.5,
+              ease: "expo.out",
+            });
+            gsap.to(footer, {
               filter: "blur(0px)",
               duration: 0.5,
               ease: "expo.out",
